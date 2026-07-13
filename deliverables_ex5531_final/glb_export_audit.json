@@ -1,0 +1,80 @@
+{
+  "path": "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.glb",
+  "bytes": 1304388,
+  "node_count": 167,
+  "mesh_count": 145,
+  "material_count": 14,
+  "animation_count": 1,
+  "critical_nodes_missing": [],
+  "critical_extras": {
+    "PistonAssembly_MOV": {
+      "interaction": "slide_z",
+      "min": 0.0,
+      "max": 0.1,
+      "initial": 0.06,
+      "strokeBaseZ": 0.135,
+      "axis": "local_Z",
+      "locked": false
+    },
+    "PistonLockKnob": {
+      "interaction": "rotate_lock",
+      "interactive": true,
+      "axialTravel": 0.0025,
+      "locked": false
+    },
+    "VentPinchClamp": {
+      "interaction": "toggle_valve",
+      "state": "closed",
+      "interactive": true
+    },
+    "PressureSensor_ROOT": {
+      "interaction": "drag_table",
+      "plane": "XY",
+      "lockZ": true,
+      "lockRotation": true,
+      "interactive": true
+    },
+    "Hose_Main_Default": {
+      "pneumatic": true,
+      "outerDiameter": 0.005,
+      "innerDiameter": 0.0032,
+      "dynamicInThreeJS": true,
+      "insertedBothEnds": true
+    },
+    "SensorPort_1": {
+      "channel": 1,
+      "connected": true
+    },
+    "SensorPort_2": {
+      "channel": 2,
+      "connected": false
+    },
+    "ANCHOR_Hose_Start": {
+      "helper": true
+    },
+    "ANCHOR_Hose_End": {
+      "helper": true
+    },
+    "COL_Base": {
+      "collider": true,
+      "visibleDefault": false
+    },
+    "COL_Tabletop": {
+      "collider": true,
+      "visibleDefault": false
+    }
+  },
+  "checks": {
+    "glb_magic_valid": true,
+    "glb_version_2": true,
+    "declared_size_matches": true,
+    "critical_nodes_present": true,
+    "piston_interaction_exported": true,
+    "sensor_interaction_exported": true,
+    "vent_interaction_exported": true,
+    "sensor_port_1_connected": true,
+    "sensor_port_2_empty": true,
+    "animation_exported": true
+  },
+  "all_checks_passed": true
+}
