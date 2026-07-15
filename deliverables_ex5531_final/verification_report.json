@@ -1,8 +1,8 @@
 {
-  "source": "DOCX section 8 plus two supplied orbit videos",
-  "blender_version": "5.1.2",
-  "blend_path": "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.blend",
-  "glb_path": "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.glb",
+  "source": "DOCX section 8, supplied reference photos, and official PASCO UI-5000 product materials",
+  "blender_version": "5.2.0 LTS",
+  "blend_path": "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.blend",
+  "glb_path": "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.glb",
   "required_nodes_missing": [],
   "checks": {
     "required_nodes_present": true,
@@ -15,6 +15,9 @@
     "instrument_moved_negative_y_60mm_from_previous": true,
     "instrument_shifted_up_60mm_total": true,
     "instrument_body_hierarchy_preserved": true,
+    "all_instruments_shifted_positive_x_negative_y": true,
+    "all_instruments_ensemble_centered_on_table": true,
+    "all_instruments_ensemble_inside_tabletop": true,
     "rod_clamp_still_centered_on_support_rod": true,
     "rod_clamp_height_matches_top_back": true,
     "rod_bridge_horizontal_to_top_back": true,
@@ -26,8 +29,11 @@
     "rod_knob_threaded_shaft_directly_behind_support_rod": true,
     "rod_knob_axis_is_rearward_y": true,
     "protective_frame_is_single_cuboid_shell": true,
+    "upper_measurement_assembly_stretched_60mm_in_z": true,
+    "upper_measurement_assembly_bottom_plane_preserved": true,
+    "upper_frame_clamp_and_platform_endpoints_raised_together": true,
     "front_back_windows_large_for_glass_view": true,
-    "side_capsule_opening_size_preserved": true,
+    "side_capsule_opening_width_preserved_and_height_stretched": true,
     "protective_frame_panels_share_parent": true,
     "legacy_four_ring_frames_removed": true,
     "lower_housing_xy_expanded": true,
@@ -42,9 +48,22 @@
     "underside_cylindrical_post_removed": true,
     "mass_platform_leafs_centered": true,
     "mass_platform_pillars_mirrored": true,
+    "mass_platform_moved_upward": true,
+    "mass_platform_upper_plate_flush_with_piston_rod_top": true,
     "glass_tube_thickened_to_48mm": true,
     "piston_thickened_and_fits_tube": true,
+    "piston_z_length_shortened_to_24mm": true,
+    "piston_rod_longer_than_pyrex_cylinder": true,
+    "piston_rod_shortened_again_by_6mm": true,
     "scale_ticks_conform_to_glass": true,
+    "scale_has_33_ticks_and_9_long_major_ticks": true,
+    "scale_major_ticks_labeled_80_to_0_top_to_bottom": true,
+    "scale_labels_align_one_to_one_with_major_ticks": true,
+    "scale_labels_are_evenly_spaced_and_clear": true,
+    "scale_labels_conform_to_front_glass_surface": true,
+    "scale_group_centered_in_front_view": true,
+    "scale_labels_close_beside_major_ticks": true,
+    "scale_labels_regular_weight_and_readable_size": true,
     "scale_strip_removed": true,
     "vent_assembly_removed": true,
     "base_is_open_v_shape": true,
@@ -102,7 +121,7 @@
     "universal_interface_pasport_text_inside_each_panel_with_margin": true,
     "universal_interface_pasport_group_shifted_up_12mm": true,
     "universal_interface_pasport_group_keeps_10mm_upper_clearance": true,
-    "universal_interface_all_sockets_are_recessed": true,
+    "universal_interface_all_recessed_input_sockets_are_recessed": true,
     "universal_interface_digital_and_analog_sockets_enlarged": true,
     "universal_interface_pasport_sockets_enlarged": true,
     "universal_interface_all_32_pasport_pin_holes_enlarged": true,
@@ -114,11 +133,31 @@
     "universal_interface_power_controls_are_seated": true,
     "universal_interface_has_five_function_modules": true,
     "universal_interface_has_four_detailed_digital_inputs": true,
+    "universal_interface_digital_inputs_are_precision_6_35mm_trs_jacks": true,
+    "universal_interface_digital_inputs_have_complete_recessed_ring_stack": true,
+    "universal_interface_digital_inputs_have_internal_tip_and_ring_contacts": true,
+    "universal_interface_digital_input_contacts_are_mirror_symmetric": true,
     "universal_interface_has_four_detailed_analog_din_inputs": true,
+    "universal_interface_analog_inputs_are_full_size_8_pin_din_female": true,
+    "universal_interface_analog_inputs_use_270_degree_horseshoe_layout": true,
+    "universal_interface_analog_inputs_have_complete_ring_stack": true,
+    "universal_interface_analog_inputs_have_32_recessed_female_holes": true,
+    "universal_interface_analog_inputs_have_upper_orientation_keys": true,
     "universal_interface_has_four_detailed_pasport_inputs": true,
+    "universal_interface_pasport_inputs_are_precision_8_contact_female_sockets": true,
+    "universal_interface_pasport_inputs_have_complete_recessed_ring_stack": true,
+    "universal_interface_pasport_pin_holes_are_recessed_not_protruding": true,
+    "universal_interface_pasport_inputs_have_upper_locator_notches": true,
     "universal_interface_output_section_complete": true,
+    "universal_interface_bnc_2_and_3_are_projecting_metal_ring_sleeves": true,
+    "universal_interface_bnc_internal_details_complete": true,
+    "universal_interface_bnc_has_two_bayonet_lugs_each": true,
     "universal_interface_function_labels_are_meshes": true,
-    "universal_interface_brand_logo_removed": true,
+    "universal_interface_top_badge_matches_reference_structure": true,
+    "universal_interface_top_badge_centered_and_inside_cover": true,
+    "universal_interface_top_badge_is_recessed_below_top_surface": true,
+    "universal_interface_top_badge_markings_removed": true,
+    "universal_interface_front_brand_title_remains_absent": true,
     "universal_interface_is_left_rear_of_main_apparatus": true,
     "tabletop_expanded_for_universal_interface": true,
     "universal_interface_footprint_inside_table": true,
@@ -130,20 +169,43 @@
     "no_text_objects": true
   },
   "all_checks_passed": true,
-  "evaluated_triangle_count_without_colliders": 295940,
+  "evaluated_triangle_count_without_colliders": 624872,
   "measurements_m": {
-    "support_rod_length": 0.3353999853134155,
+    "support_rod_length": 0.40139999985694885,
     "support_rod_diameter": 0.01269999984651804,
-    "support_rod_bottom": 0.18060001730918884,
-    "support_rod_top": 0.5160000026226044,
+    "support_rod_bottom": 0.18060000240802765,
+    "support_rod_top": 0.5820000022649765,
     "support_rod_xy": [
-      0.0,
-      0.05
+      0.1287499964237213,
+      -0.0145040862262249
     ],
     "vertex_contact_pad_xy": [
-      0.0,
-      0.13298025727272034
+      0.1287499964237213,
+      0.06847617030143738
     ],
+    "table_center_xy": [
+      -0.10000000149011612,
+      -0.03999999910593033
+    ],
+    "main_instrument_xy_shift": [
+      -0.10000000149011612,
+      -0.03999999910593033
+    ],
+    "all_instruments_xy_shift": [
+      0.22875000536441803,
+      -0.02450409159064293
+    ],
+    "all_instruments_ensemble_bounds_xy": [
+      -0.4937499761581421,
+      0.29374999642372135,
+      -0.31549590826034546,
+      0.2354959100484848
+    ],
+    "all_instruments_ensemble_center_xy": [
+      -0.09999998658895493,
+      -0.03999999910593033
+    ],
+    "all_instruments_ensemble_center_offset": 1.4901161193847656e-08,
     "instrument_uniform_scale": 1.1,
     "instrument_y_shift": 0.0,
     "instrument_y_movement_from_previous": -0.06,
@@ -155,8 +217,8 @@
       0.08100000023841858
     ],
     "scaled_housing_center": [
-      0.0,
-      -0.009999999776482582,
+      0.1287499964237213,
+      -0.07450409233570099,
       0.18060000240802765
     ],
     "scaled_lower_housing_dimensions": [
@@ -170,37 +232,77 @@
       0.008800000883638859
     ],
     "support_rod_hole_center_world": [
-      0.0,
-      0.05000000447034836,
+      0.1287499964237213,
+      -0.0145040862262249,
       0.18060000240802765
     ],
     "support_rod_hole_diameter": 0.0157,
-    "rod_top_connection_z": 0.3830000162124634,
+    "rod_top_connection_z": 0.4490000009536743,
     "protective_frame_top_back_center": [
-      0.0,
-      0.032899998128414154,
-      0.3830000162124634
+      0.1287499964237213,
+      -0.0316040925681591,
+      0.4490000009536743
     ],
     "rod_bridge_depth": 0.01230000187158585,
     "rod_bridge_slab_end_width": 0.11220000000000001,
     "rod_bridge_clamp_end_width": 0.04,
+    "upper_measurement_assembly_source_z_stretch": 0.06,
+    "upper_measurement_assembly_scaled_z_growth": 0.066,
+    "protective_frame_bottom_z_preserved": 0.1441,
+    "protective_frame_top_z_after_stretch": 0.40590000000000004,
     "protective_frame_outer_size": [
       0.11220000000000001,
       0.1034,
-      0.1958
+      0.26180000000000003
     ],
     "front_back_window_size": [
       0.09020000000000002,
-      0.1628
+      0.2288
     ],
     "side_capsule_window_size": [
       0.05500000000000001,
-      0.15180000000000002
+      0.21780000000000002
     ],
     "glass_tube_outer_diameter": 0.05280000000000001,
     "glass_tube_inner_diameter": 0.04510000000000001,
+    "glass_tube_length_after_stretch": 0.23870000000000002,
+    "scale_tick_count": 33,
+    "scale_major_tick_count": 9,
+    "scale_major_values_top_to_bottom": [
+      80,
+      70,
+      60,
+      50,
+      40,
+      30,
+      20,
+      10,
+      0
+    ],
+    "scale_major_spacing": 0.02241248190402985,
+    "scale_label_alignment_error_max": 1.2636184709702292e-08,
+    "scale_label_surface_error_max": 1.2957586129069831e-08,
+    "scale_label_surface_offset": 0.000165,
+    "scale_group_center_x_error": 0.0011277422308921814,
+    "scale_label_to_major_tick_gap": 0.0008109062910079956,
+    "scale_label_size": 0.0099,
+    "scale_label_outline": 0.0,
     "piston_diameter": 0.044439997524023056,
+    "original_piston_height": 0.0352,
+    "piston_height_after_shortening": 0.026400001719594002,
+    "piston_height_reduction": 0.0088,
     "piston_radial_clearance": 0.00033000000000000184,
+    "piston_rod_length": 0.27720001339912415,
+    "piston_rod_previous_additional_source_length": 0.018,
+    "piston_rod_additional_source_length": 0.012,
+    "piston_rod_additional_scaled_length": 0.013200000000000002,
+    "piston_rod_change_this_revision": -0.006599999999999999,
+    "pyrex_cylinder_length": 0.2387000024318695,
+    "piston_rod_length_excess_over_cylinder": 0.03850001096725464,
+    "mass_platform_vertical_shift": 0.1023,
+    "piston_rod_top_z": 0.561199963092804,
+    "mass_platform_upper_plate_top_z": 0.5612000226974487,
+    "mass_platform_upper_plate_to_piston_rod_top_gap": 5.960464477539063e-08,
     "original_housing_combined_height": 0.06820000000000001,
     "revised_housing_combined_height": 0.05170000000000002,
     "v_arm_left_midpoint": [
@@ -214,8 +316,8 @@
       0.0
     ],
     "base_trapezoid_center": [
-      0.0,
-      0.05000000074505806,
+      0.1287499964237213,
+      -0.0145040862262249,
       0.07519999891519547
     ],
     "base_crossmount_y_range": [
@@ -228,27 +330,27 @@
     "base_crossmount_top_back_width": 0.05856077393003306,
     "base_crossmount_top_footprint_scale": 0.72,
     "base_connector_cylinder_center": [
-      0.0,
-      0.05000000074505806,
+      0.1287499964237213,
+      -0.0145040862262249,
       0.13439999520778656
     ],
     "base_connector_cylinder_diameter": 0.064,
     "base_connector_cylinder_height": 0.044,
-    "upper_cylinder_to_housing_center_y_offset": 0.06000000052154064,
+    "upper_cylinder_to_housing_center_y_offset": 0.06000000610947609,
     "support_rod_to_upper_cylinder_axis_offset": 0.0,
     "rod_knob_head_center": [
-      0.0,
-      0.07050000131130219,
-      0.3830000162124634
+      0.1287499964237213,
+      0.005995911546051502,
+      0.4490000009536743
     ],
     "rod_knob_threaded_shaft_center": [
-      0.0,
-      0.06300000101327896,
-      0.3830000162124634
+      0.1287499964237213,
+      -0.0015040882863104343,
+      0.4490000009536743
     ],
     "crossmount_height": 0.07839999508857728,
-    "support_rod_visible_length": 0.33539999759197237,
-    "rod_bridge_front_y": 0.03769999812841415,
+    "support_rod_visible_length": 0.4013999975919724,
+    "rod_bridge_front_y": -0.0268040925681591,
     "mass_platform_leaf_bounding_size": [
       0.072,
       0.062,
@@ -287,9 +389,19 @@
       0.8999999761581421,
       0.029999999329447746
     ],
-    "universal_interface_origin": [
+    "universal_interface_local_origin": [
       -0.44999998807907104,
       0.15000000596046448,
+      0.0
+    ],
+    "universal_interface_origin": [
+      -0.22124998271465302,
+      0.12549591064453125,
+      0.0
+    ],
+    "pressure_sensor_origin": [
+      0.12375000864267349,
+      -0.28450408577919006,
       0.0
     ],
     "previous_universal_interface_dimensions": [
@@ -305,12 +417,26 @@
     "universal_interface_x_growth": 0.04500001668930054,
     "universal_interface_z_growth": 0.015000000596046448,
     "universal_interface_front_width_height_ratio": 3.027777750183036,
+    "universal_interface_top_badge_recess_dimensions": [
+      0.15000000596046448,
+      0.052000001072883606,
+      0.0017999999690800905
+    ],
+    "universal_interface_top_badge_inlay_dimensions": [
+      0.14000000059604645,
+      0.041999999433755875,
+      0.0007999999797903001
+    ],
+    "universal_interface_top_badge_recess_depth": 0.0018,
+    "universal_interface_top_badge_corner_radius": 0.007,
+    "universal_interface_top_badge_center_error": 0.0,
+    "universal_interface_top_badge_inlay_below_cover_top": 0.0006499886512756348,
     "universal_interface_front_panel_dimensions": [
       0.478,
       0.008,
       0.151
     ],
-    "universal_interface_front_panel_minimum_x_margin": 0.033499956130981445,
+    "universal_interface_front_panel_minimum_x_margin": 0.03350001573562622,
     "universal_interface_front_panel_minimum_z_margin": 0.01449553668498993,
     "universal_interface_front_module_areas": {
       "digital": 0.006048000343561177,
@@ -324,9 +450,13 @@
     "universal_interface_pasport_to_upper_panel_clearance": 0.009999999776482582,
     "universal_interface_pasport_pin_hole_diameter": 0.004,
     "universal_interface_pasport_pin_ring_radius": 0.006,
+    "universal_interface_pasport_pin_angular_offset_degrees": 22.5,
     "universal_interface_pasport_pin_hole_count": 32,
+    "universal_interface_pasport_outer_diameter": 0.0184,
+    "universal_interface_pasport_pin_collar_count": 32,
+    "universal_interface_pasport_locator_notch_count": 4,
     "universal_interface_pasport_pin_hole_adjacent_clearance": 0.0005922011883810778,
-    "universal_interface_data_plug_seating_gap": 6.938893903907228e-18,
+    "universal_interface_data_plug_seating_gap": 8.673617379884035e-18,
     "universal_interface_housing_front_plane_y": -0.116,
     "universal_interface_module_front_plane_y": -0.12,
     "universal_interface_text_plane_y": -0.12004999999999999,
@@ -335,58 +465,83 @@
     "universal_interface_text_bold_offset": 0.0003,
     "universal_interface_socket_recess_depth": 0.0012000000000000066,
     "universal_interface_digital_input_count": 4,
+    "universal_interface_digital_trs_outer_diameter": 0.013,
+    "universal_interface_digital_trs_bore_diameter": 0.0066,
+    "universal_interface_digital_trs_contact_spring_count": 8,
+    "universal_interface_digital_trs_contact_symmetry_error_max": 0.0,
     "universal_interface_analog_din_count": 4,
+    "universal_interface_analog_din_outer_diameter": 0.025,
+    "universal_interface_analog_din_pin_arc_degrees": 270.0,
+    "universal_interface_analog_din_pin_ring_diameter": 0.0105,
+    "universal_interface_analog_din_pin_hole_diameter": 0.0013,
+    "universal_interface_analog_din_pin_hole_count": 32,
+    "universal_interface_analog_din_locator_notch_count": 4,
+    "universal_interface_analog_din_ring_stack_count": 12,
     "universal_interface_pasport_count": 4,
     "universal_interface_bnc_output_count": 2,
+    "universal_interface_bnc_outer_diameter": 0.0144,
+    "universal_interface_bnc_inner_diameter": 0.0108,
+    "universal_interface_bnc_sleeve_length": 0.018,
+    "universal_interface_bnc_nominal_protrusion": 0.016499999999999987,
+    "universal_interface_bnc_internal_contact_slot_count": 6,
+    "universal_interface_bnc_bayonet_lug_count": 4,
     "sensor_circular_data_port_diameter": 0.01404,
     "sensor_to_universal_data_cable_diameter": 0.0064
   },
   "hose_endpoints_m": {
     "external_quick_disconnect": [
-      -0.0495000034570694,
-      -0.07380000501871109,
+      0.07924999296665192,
+      -0.13830409944057465,
       0.24660000205039978
     ],
     "external_sensor": [
-      -0.029924266040325165,
-      -0.2566320598125458,
+      0.19882574677467346,
+      -0.281136155128479,
       0.019440000876784325
     ],
     "internal_quick_disconnect": [
-      -0.0495000034570694,
-      -0.07380000501871109,
+      0.07924999296665192,
+      -0.13830409944057465,
       0.21250000596046448
     ],
     "internal_cylinder_bottom": [
-      0.0,
-      -0.009999999776482582,
+      0.1287499964237213,
+      -0.07450409233570099,
       0.19820000231266022
     ],
     "data_cable_sensor_circular_connector": [
-      -0.19008739292621613,
-      -0.27500319480895996,
+      0.038662612438201904,
+      -0.2995072901248932,
       0.018360000103712082
     ],
     "data_cable_universal_interface": [
-      -0.6089999675750732,
-      0.011200010776519775,
+      -0.3802499771118164,
+      -0.013304080814123154,
       0.05299999937415123
     ]
   },
   "previews": [
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_hero.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_front.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_side.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_back.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_top.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_base_top.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_sensor_hose.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_sensor_ports.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_sensor_data_connector.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_system_overview.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_universal_interface.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_data_link.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_quick_disconnect.png",
-    "C:\\Users\\20238\\Documents\\New project 12\\publish_ex5531_github\\deliverables_ex5531_final\\previews\\preview_rod_knob_back.png"
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_hero.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_front.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_scale_detail.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_upper_assembly.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_side.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_back.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_top.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_base_top.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_sensor_hose.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_sensor_ports.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_sensor_data_connector.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_system_overview.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_interface.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_top_badge.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_digital_inputs.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_analog_inputs.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_pasport_inputs.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_universal_bnc_outputs.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_data_link.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_quick_disconnect.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_rod_knob_back.png",
+    "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\previews\\preview_piston_rod.png"
   ]
 }

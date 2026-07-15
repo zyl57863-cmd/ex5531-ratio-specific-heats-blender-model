@@ -1,80 +1,87 @@
 {
-  "path": "C:\\Users\\20238\\Documents\\New project 12\\deliverables_ex5531_final\\EX5531_TD8572A_ratio_specific_heats_final.glb",
-  "bytes": 1304388,
-  "node_count": 167,
-  "mesh_count": 145,
-  "material_count": 14,
-  "animation_count": 1,
-  "critical_nodes_missing": [],
-  "critical_extras": {
-    "PistonAssembly_MOV": {
-      "interaction": "slide_z",
-      "min": 0.0,
-      "max": 0.1,
-      "initial": 0.06,
-      "strokeBaseZ": 0.135,
-      "axis": "local_Z",
-      "locked": false
-    },
-    "PistonLockKnob": {
-      "interaction": "rotate_lock",
-      "interactive": true,
-      "axialTravel": 0.0025,
-      "locked": false
-    },
-    "VentPinchClamp": {
-      "interaction": "toggle_valve",
-      "state": "closed",
-      "interactive": true
-    },
-    "PressureSensor_ROOT": {
-      "interaction": "drag_table",
-      "plane": "XY",
-      "lockZ": true,
-      "lockRotation": true,
-      "interactive": true
-    },
-    "Hose_Main_Default": {
-      "pneumatic": true,
-      "outerDiameter": 0.005,
-      "innerDiameter": 0.0032,
-      "dynamicInThreeJS": true,
-      "insertedBothEnds": true
-    },
-    "SensorPort_1": {
-      "channel": 1,
-      "connected": true
-    },
-    "SensorPort_2": {
-      "channel": 2,
-      "connected": false
-    },
-    "ANCHOR_Hose_Start": {
-      "helper": true
-    },
-    "ANCHOR_Hose_End": {
-      "helper": true
-    },
-    "COL_Base": {
-      "collider": true,
-      "visibleDefault": false
-    },
-    "COL_Tabletop": {
-      "collider": true,
-      "visibleDefault": false
-    }
-  },
-  "checks": {
-    "glb_magic_valid": true,
-    "glb_version_2": true,
-    "declared_size_matches": true,
-    "critical_nodes_present": true,
-    "piston_interaction_exported": true,
-    "sensor_interaction_exported": true,
-    "vent_interaction_exported": true,
-    "sensor_port_1_connected": true,
-    "sensor_port_2_empty": true,
-    "animation_exported": true
-  },
-  "all_checks_passed": true
+    "path":  "deliverables_ex5531_final/EX5531_TD8572A_ratio_specific_heats_final.glb",
+    "bytes":  7212312,
+    "node_count":  433,
+    "mesh_count":  378,
+    "material_count":  25,
+    "animation_count":  1,
+    "critical_nodes_missing":  [
+
+                               ],
+    "obsolete_nodes_present":  [
+
+                               ],
+    "critical_extras":  {
+                            "PistonAssembly_MOV":  {
+                                                       "interaction":  "slide_z",
+                                                       "min":  0.0,
+                                                       "max":  0.1,
+                                                       "initial":  0.06,
+                                                       "strokeBaseZ":  0.135,
+                                                       "axis":  "local_Z",
+                                                       "locked":  false,
+                                                       "lockedByPneumaticSealWhen":  "Connector_Main_QuickDisconnect.connected_sealed",
+                                                       "freeVolumeAdjustmentWhen":  "Connector_Main_QuickDisconnect.disconnected_open_to_atmosphere"
+                                                   },
+                            "PistonRod":  {
+                                              "movesWith":  "PistonAssembly_MOV",
+                                              "nominalLength":  0.252,
+                                              "longerThan":  "Cylinder_Pyrex"
+                                          },
+                            "MassPlatform_UpperPlate":  {
+                                                            "shape":  "four_way_symmetric_leaf",
+                                                            "boundingSize":  [
+                                                                                 0.072,
+                                                                                 0.062,
+                                                                                 0.008
+                                                                             ]
+                                                        },
+                            "ScaleTicks_Unnumbered":  {
+                                                          "pickable":  false,
+                                                          "containsNumbers":  false,
+                                                          "numberedBy":  "ScaleLabels_80_to_0",
+                                                          "attachedTo":  "Cylinder_Pyrex",
+                                                          "conformsToRadius":  0.024,
+                                                          "totalTickCount":  33,
+                                                          "majorTickEvery":  4,
+                                                          "majorTickCount":  9
+                                                      },
+                            "PressureSensor_ROOT":  {
+                                                        "interaction":  "drag_table",
+                                                        "plane":  "XY",
+                                                        "lockZ":  true,
+                                                        "lockRotation":  true,
+                                                        "interactive":  true,
+                                                        "uniformScale":  1.08
+                                                    },
+                            "Hose_Main_Default":  {
+                                                      "pneumatic":  true,
+                                                      "outerDiameter":  0.005,
+                                                      "innerDiameter":  0.0032,
+                                                      "dynamicInThreeJS":  true,
+                                                      "detachableAt":  "Connector_Main_QuickDisconnect",
+                                                      "terminalInsertionAxis":  "vertical_Z",
+                                                      "airtightWhenConnected":  true
+                                                  }
+                        },
+    "measurements_m":  {
+                           "piston_height":  0.026400001719594002,
+                           "piston_rod_length":  0.27720001339912415,
+                           "piston_rod_to_upper_plate_gap":  5.9604644775390625E-08,
+                           "scale_major_spacing":  0.02241248190402985
+                       },
+    "checks":  {
+                   "glb_magic_valid":  true,
+                   "glb_version_2":  true,
+                   "declared_size_matches":  true,
+                   "json_chunk_valid":  true,
+                   "critical_nodes_present":  true,
+                   "obsolete_nodes_absent":  true,
+                   "nine_numbered_scale_labels_present":  true,
+                   "piston_interaction_exported":  true,
+                   "mass_platform_alignment_exported":  true,
+                   "animation_exported":  true,
+                   "source_verification_passed":  true
+               },
+    "all_checks_passed":  true
 }
