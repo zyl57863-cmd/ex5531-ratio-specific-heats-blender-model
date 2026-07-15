@@ -13,6 +13,8 @@
 - `deliverables_ex5531_final/glb_export_audit.json`：GLB 导出结构检查结果。
 - `deliverables_ex5531_final/previews/`：多角度及局部细节预览图。
 - `deliverables_ex5531_final/preview/index.html`：本地 GLB 网页预览器。
+- `THIRD_PARTY_NOTICES.md`：构建工具、运行时依赖、许可证和外部素材审计说明。
+- `THIRD_PARTY_LICENSES/`：需要随仓库保留的第三方许可证文本。
 
 ## 当前模型重点
 
@@ -52,3 +54,7 @@ $report.all_checks_passed
 ```
 
 预期输出为 `True`。
+
+## 第三方开源组件
+
+本项目使用 Blender、Blender内置Python和three.js。完整版本、用途、许可证及“未使用/未打包”项请查看 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
