@@ -240,6 +240,38 @@ def cylinder(name, loc, radius, depth, mat, col, parent=None, vertices=96, edge=
     return parent_to(obj, parent)
 
 
+def half_cylinder(name, loc, radius, depth, rotation_z, mat, col, parent=None, segments=64, edge=0.0):
+    """Create a vertical D-profile prism with its flat face on local +X."""
+    outline = [(0.0, -radius), (0.0, radius)]
+    for index in range(1, segments):
+        angle = math.pi * 0.5 + math.pi * index / segments
+        outline.append((radius * math.cos(angle), radius * math.sin(angle)))
+
+    count = len(outline)
+    half_depth = depth * 0.5
+    verts = [(x, y, -half_depth) for x, y in outline] + [(x, y, half_depth) for x, y in outline]
+    faces = [tuple(reversed(range(count))), tuple(range(count, count * 2))]
+    for index in range(count):
+        following = (index + 1) % count
+        faces.append((index, following, count + following, count + index))
+
+    mesh = bpy.data.meshes.new(name + "_Mesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    obj.location = loc
+    obj.rotation_euler[2] = rotation_z
+    if mat:
+        obj.data.materials.append(mat)
+    # Keep the two caps and the recessed flat mating face planar while
+    # smoothing only the exposed semicircular wall.
+    for polygon_index, polygon in enumerate(obj.data.polygons):
+        polygon.use_smooth = polygon_index >= 3
+    bevel(obj, edge, 6)
+    col.objects.link(obj)
+    return parent_to(obj, parent)
+
+
 def cylinder_axis(name, loc, radius, depth, axis, mat, col, parent=None, vertices=96, edge=0.0):
     obj = cylinder(name, loc, radius, depth, mat, col, parent, vertices, edge)
     if axis == "X":
@@ -838,10 +870,47 @@ def create_scene():
     base_node = empty("Base_CastIron", (0, 0, 0), cols["02_Stand"], stand)
     set_props(base_node, type="cast_iron_open_V_frame", footCenterDistance=base_foot_spacing, footToVertexDistance=base_arm_length)
 
-    for name, p in (("LevelFoot_L", left_foot), ("LevelFoot_R", right_foot)):
-        foot = cylinder(name, (p.x, p.y, 0.005), 0.022, 0.010, mats["rubber"], cols["02_Stand"], stand, 96, 0.001)
-        cylinder(name + "_AdjusterScrew", (p.x, p.y, 0.025), 0.0048, 0.036, mats["steel"], cols["02_Stand"], stand, 64, 0.0003)
-        set_props(foot, contactZ=0.0, adjustable=True)
+    level_foot_radius = base_beam_width * 0.5
+    level_foot_height = 0.012
+    level_foot_beam_overlap = 0.003
+    level_foot_edge_radius = 0.0012
+    level_feet = {}
+    for name, p, logical_side in (
+        ("LevelFoot_L", left_foot, "left"),
+        ("LevelFoot_R", right_foot, "right"),
+    ):
+        beam_direction = (apex - p).normalized()
+        flat_face_center = p + beam_direction * level_foot_beam_overlap
+        foot = half_cylinder(
+            name,
+            (flat_face_center.x, flat_face_center.y, level_foot_height * 0.5),
+            level_foot_radius,
+            level_foot_height,
+            math.atan2(beam_direction.y, beam_direction.x),
+            mats["rubber"], cols["02_Stand"], stand,
+            segments=64, edge=level_foot_edge_radius,
+        )
+        level_feet[name] = foot
+        set_props(
+            foot,
+            contactZ=0.0,
+            adjustable=False,
+            fixed=True,
+            shape="vertical_half_cylinder",
+            profile="D_profile_with_semicircular_exposed_edge",
+            radius=level_foot_radius,
+            height=level_foot_height,
+            flatFaceWidth=level_foot_radius * 2.0,
+            beamOverlap=level_foot_beam_overlap,
+            edgeRadius=level_foot_edge_radius,
+            logicalSide=logical_side,
+            logicalBeam=f"Base_CastIron_{logical_side.capitalize()}Beam",
+            representedGeometryBy="Base_CastIron_LeftBeam",
+            adjusterScrewRemoved=True,
+            protrudingCornersRemoved=True,
+        )
+    left_level_foot = level_feet["LevelFoot_L"]
+    right_level_foot = level_feet["LevelFoot_R"]
     vertex = cylinder("VertexContactPad", (apex.x, apex.y, 0.005), 0.021, 0.010, mats["rubber"], cols["02_Stand"], stand, 96, 0.001)
     set_props(vertex, contactZ=0.0)
 
@@ -1107,14 +1176,35 @@ def create_scene():
         mats["glass"], cols["03_HeatEngine"], engine, 192,
     )
     set_props(cylinder_obj, materialRuntime="MeshPhysicalMaterial", wallThickness=tube_outer_radius - tube_inner_radius)
-    torus("Cylinder_LowerSeal", (cyl_center[0], cyl_center[1], 0.138), 0.0220, 0.0020, mats["detail"], cols["03_HeatEngine"], engine)
-    torus("Cylinder_UpperGuideRing", (cyl_center[0], cyl_center[1], cylinder_top_z - 0.002), 0.0220, 0.0020, mats["detail"], cols["03_HeatEngine"], engine)
+    lower_seal_center_z = 0.138
+    lower_seal_minor_radius = 0.0020
+    torus(
+        "Cylinder_LowerSeal", (cyl_center[0], cyl_center[1], lower_seal_center_z),
+        0.0220, lower_seal_minor_radius, mats["detail"], cols["03_HeatEngine"], engine,
+    )
+    upper_seal_center_z = cylinder_top_z - 0.002
+    upper_seal_minor_radius = 0.0020
+    torus(
+        "Cylinder_UpperGuideRing", (cyl_center[0], cyl_center[1], upper_seal_center_z),
+        0.0220, upper_seal_minor_radius, mats["detail"], cols["03_HeatEngine"], engine,
+    )
 
-    # Keep the first and last numbered graduations clear of both glass seals.
-    scale_z_start = 0.169
-    scale_z_end = 0.272 + upper_z_stretch
-    scale_tick_count = 33
+    # Keep the zero graduation visually tight to the lower glass seal, extend
+    # the scale upward to 90, and preserve a small safe gap below the upper
+    # glass seal for both the highest tick and its number.
+    scale_tick_height = 0.00065
+    scale_zero_tick_edge_clearance = 0.000675
+    scale_z_start = lower_seal_center_z + lower_seal_minor_radius + scale_tick_height * 0.5 + scale_zero_tick_edge_clearance
+    scale_top_tick_center_clearance_to_glass_top = 0.0085
+    scale_z_end = cylinder_top_z - scale_top_tick_center_clearance_to_glass_top
+    scale_span = scale_z_end - scale_z_start
+    scale_max_value = 90
+    scale_major_value_step = 10
     scale_major_every = 4
+    scale_major_tick_count = scale_max_value // scale_major_value_step + 1
+    scale_labeled_major_tick_count = scale_major_tick_count - 1
+    scale_tick_count = (scale_major_tick_count - 1) * scale_major_every + 1
+    scale_tick_arc_segments = 10
     scale_tick_center_angle = -math.pi / 2 - math.radians(9)
     ticks = cylindrical_scale_ticks(
         "ScaleTicks_Unnumbered", cyl_center, tube_outer_radius, scale_z_start, scale_z_end, scale_tick_count,
@@ -1123,6 +1213,8 @@ def create_scene():
         # sit just left of the tube centreline and the numbers sit immediately
         # to their right.
         center_angle=scale_tick_center_angle,
+        tick_height=scale_tick_height,
+        arc_segments=scale_tick_arc_segments,
         major_every=scale_major_every, medium_every=2,
         major_length=0.016, medium_length=0.0105, minor_length=0.0065,
     )
@@ -1130,12 +1222,19 @@ def create_scene():
         ticks,
         pickable=False,
         containsNumbers=False,
-        numberedBy="ScaleLabels_80_to_0",
+        numberedBy="ScaleLabels_90_to_10",
         attachedTo="Cylinder_Pyrex",
         conformsToRadius=tube_outer_radius,
         totalTickCount=scale_tick_count,
         majorTickEvery=scale_major_every,
-        majorTickCount=9,
+        majorTickCount=scale_major_tick_count,
+        labeledMajorTickCount=scale_labeled_major_tick_count,
+        highestMajorValue=scale_max_value,
+        lowestMajorValue=0,
+        lowestMajorLabeled=False,
+        zStart=scale_z_start,
+        zEnd=scale_z_end,
+        tickHeight=scale_tick_height,
     )
     scale_labels = []
     scale_label_surface_offset = 0.00015
@@ -1143,10 +1242,12 @@ def create_scene():
     scale_label_x_offset = 0.0095
     scale_label_size = 0.0090
     scale_label_outline = 0.0
-    scale_major_z_values = []
-    for label_order, displayed_value in enumerate(range(80, -1, -10)):
-        label_z = scale_z_end - label_order * (scale_z_end - scale_z_start) / 8.0
-        scale_major_z_values.append(label_z)
+    scale_major_z_values = [
+        scale_z_end - major_index * (scale_z_end - scale_z_start) / (scale_major_tick_count - 1)
+        for major_index in range(scale_major_tick_count)
+    ]
+    for label_order, displayed_value in enumerate(range(scale_max_value, 0, -scale_major_value_step)):
+        label_z = scale_major_z_values[label_order]
         scale_label = mesh_text_label(
             f"ScaleLabel_{displayed_value}", str(displayed_value),
             (cyl_center[0] + scale_label_x_offset, cyl_center[1] - scale_label_initial_radius, label_z),
@@ -1174,7 +1275,7 @@ def create_scene():
             displayedValue=displayed_value,
             attachedTo="Cylinder_Pyrex",
             alignedWith="major_scale_tick",
-            scaleOrder="top_to_bottom_80_to_0",
+            scaleOrder="top_to_bottom_90_to_10",
             surfaceConforming=True,
             surfaceOffset=scale_label_surface_offset,
             labelSize=scale_label_size,
@@ -2245,6 +2346,7 @@ def create_scene():
         "back": ((-0.10, 0.71, 0.32), (-0.10, -0.040, 0.235), 50),
         "top": ((-0.10, -0.04, 1.70), (-0.10, -0.04, 0.050), 45),
         "base_top": ((-0.099, -0.025, 0.46), (-0.10, -0.025, 0.025), 50),
+        "base_foot_detail": ((-0.095, -0.350, 0.095), (-0.010, -0.189, 0.010), 65),
         "sensor_hose": ((0.24, -0.48, 0.16), (-0.060, -0.215, 0.075), 58),
         "sensor_ports": ((-0.105, -0.260, 0.250), (-0.095, -0.258, 0.015), 65),
         "sensor_data_connector": ((-0.355, -0.390, 0.125), (-0.180, -0.272, 0.020), 72),
@@ -2299,7 +2401,7 @@ def create_scene():
         scene.camera = cameras[label]
         scene.render.filepath = os.path.join(PREVIEW_DIR, f"preview_{label}.png")
         hidden_for_base_top = []
-        if label == "base_top":
+        if label in {"base_top", "base_foot_detail"}:
             base_objects = set(cols["02_Stand"].objects)
             for obj in scene.objects:
                 if obj.type in {"MESH", "CURVE"} and obj not in base_objects and obj.name != "Tabletop":
@@ -2351,8 +2453,8 @@ def create_scene():
         "ProtectiveFrame_TopSlab", "ProtectiveFrame_BottomSlab", "ProtectiveFrame_TopBack",
         "ProtectiveFrame_FrontPanel", "ProtectiveFrame_BackPanel", "ProtectiveFrame_LeftPanel", "ProtectiveFrame_RightPanel", "Cylinder_Pyrex",
         "ScaleTicks_Unnumbered", "PistonAssembly_MOV", "Piston_Graphite",
-        "ScaleLabel_80", "ScaleLabel_70", "ScaleLabel_60", "ScaleLabel_50", "ScaleLabel_40",
-        "ScaleLabel_30", "ScaleLabel_20", "ScaleLabel_10", "ScaleLabel_0",
+        "ScaleLabel_90", "ScaleLabel_80", "ScaleLabel_70", "ScaleLabel_60", "ScaleLabel_50", "ScaleLabel_40",
+        "ScaleLabel_30", "ScaleLabel_20", "ScaleLabel_10",
         "PistonRod", "MassPlatform", "MassPlatform_LowerPlate", "MassPlatform_UpperPlate",
         "MassPlatform_LeftPillar", "MassPlatform_RightPillar", "Pneumatic_ROOT",
         "PneumaticHose_ROOT", "Port_Main", "Connector_Main_QuickDisconnect", "Connector_Main_White",
@@ -2532,14 +2634,52 @@ def create_scene():
     piston_min = (0.135, 0.167)
     piston_max = (0.235, 0.267)
     cylinder_bounds = (cylinder_bottom_z, cylinder_top_z)
+    scale_tick_vertices_per_mark = (scale_tick_arc_segments + 1) * 4
+    scale_tick_center_z_values_actual = []
+    for tick_index in range(scale_tick_count):
+        vertex_start = tick_index * scale_tick_vertices_per_mark
+        tick_vertex_z_values = [
+            ticks.data.vertices[vertex_index].co.z
+            for vertex_index in range(vertex_start, vertex_start + scale_tick_vertices_per_mark)
+        ]
+        scale_tick_center_z_values_actual.append((min(tick_vertex_z_values) + max(tick_vertex_z_values)) * 0.5)
+    scale_major_z_values_actual_top_down = list(reversed([
+        scale_tick_center_z_values_actual[index]
+        for index in range(0, scale_tick_count, scale_major_every)
+    ]))
+    expected_scale_tick_spacing = scale_span / (scale_tick_count - 1)
+    scale_tick_spacing_error_max = max(
+        abs(
+            scale_tick_center_z_values_actual[index + 1]
+            - scale_tick_center_z_values_actual[index]
+            - expected_scale_tick_spacing
+        )
+        for index in range(scale_tick_count - 1)
+    )
     scale_label_values = [label.get("displayedValue") for label in scale_labels]
     scale_label_z_values = [label.location.z for label in scale_labels]
     scale_label_alignment_error_max = max(
-        abs(scale_label_z_values[index] - scale_major_z_values[index]) for index in range(9)
+        abs(scale_label_z_values[index] - scale_major_z_values_actual_top_down[index]) for index in range(len(scale_labels))
     )
     scale_label_spacing = min(
-        scale_label_z_values[index] - scale_label_z_values[index + 1] for index in range(8)
+        scale_label_z_values[index] - scale_label_z_values[index + 1] for index in range(len(scale_labels) - 1)
     )
+    scale_zero_tick_center_z = scale_tick_center_z_values_actual[0]
+    scale_zero_tick_lower_edge_z = min(vertex.co.z for vertex in ticks.data.vertices)
+    scale_top_tick_upper_edge_z = max(vertex.co.z for vertex in ticks.data.vertices)
+    lower_seal_top_z = lower_seal_center_z + lower_seal_minor_radius
+    upper_seal_bottom_z = upper_seal_center_z - upper_seal_minor_radius
+    scale_zero_tick_edge_clearance_actual = scale_zero_tick_lower_edge_z - lower_seal_top_z
+    scale_zero_tick_center_to_glass_bottom = scale_zero_tick_center_z - cylinder_bottom_z
+    scale_top_tick_to_glass_top_clearance_actual = cylinder_top_z - scale_top_tick_upper_edge_z
+    scale_top_tick_to_upper_seal_clearance_actual = upper_seal_bottom_z - scale_top_tick_upper_edge_z
+    scale_top_label_upper_z = max(
+        scale_labels[0].location.z + vertex.co.z for vertex in scale_labels[0].data.vertices
+    )
+    scale_top_label_clearance_below_upper_seal = upper_seal_bottom_z - scale_top_label_upper_z
+    previous_scale_tick_spacing = 0.163 / 32.0
+    previous_scale_major_spacing = 0.163 / 8.0
+    expected_scale_major_spacing = scale_span / (scale_major_tick_count - 1)
     cylinder_world_center = cylinder_obj.matrix_world.translation
     scale_label_target_world_radius = (tube_outer_radius + scale_label_surface_offset) * instrument_scale
     scale_label_world_vertices = [
@@ -2596,6 +2736,22 @@ def create_scene():
         table_center.x - table_dims.x * 0.5, table_center.x + table_dims.x * 0.5,
         table_center.y - table_dims.y * 0.5, table_center.y + table_dims.y * 0.5,
     )
+    left_foot_direction = (apex - left_foot).normalized()
+    right_foot_direction = (apex - right_foot).normalized()
+    left_foot_expected_center = left_foot + left_foot_direction * level_foot_beam_overlap
+    right_foot_expected_center = right_foot + right_foot_direction * level_foot_beam_overlap
+    base_beam_bottom_z = base_beam_center_z - base_beam_height * 0.5
+    level_foot_vertical_overlap = level_foot_height - base_beam_bottom_z
+    level_foot_local_bounds = []
+    for foot in (left_level_foot, right_level_foot):
+        x_values = [vertex.co.x for vertex in foot.data.vertices]
+        y_values = [vertex.co.y for vertex in foot.data.vertices]
+        z_values = [vertex.co.z for vertex in foot.data.vertices]
+        level_foot_local_bounds.append((min(x_values), max(x_values), min(y_values), max(y_values), min(z_values), max(z_values)))
+    level_foot_bevels = [
+        next((modifier for modifier in foot.modifiers if modifier.type == "BEVEL"), None)
+        for foot in (left_level_foot, right_level_foot)
+    ]
     checks = {
         "required_nodes_present": len(missing) == 0,
         "metric_unit_scale_1": scene.unit_settings.system == "METRIC" and abs(scene.unit_settings.scale_length - 1.0) < 1e-9,
@@ -2648,19 +2804,33 @@ def create_scene():
         "piston_rod_longer_than_pyrex_cylinder": rod_part.dimensions.z > cylinder_obj.dimensions.z and abs(rod_part.get("nominalLength") - piston_rod_depth) < 1e-9,
         "piston_rod_shortened_again_by_6mm": abs(previous_piston_rod_extra_length - piston_rod_extra_length - 0.006) < 1e-9 and abs(rod_part.dimensions.z - piston_rod_depth * instrument_scale) < 1e-6,
         "scale_ticks_conform_to_glass": ticks.get("attachedTo") == "Cylinder_Pyrex" and abs(ticks.get("conformsToRadius") - tube_outer_radius) < 1e-9,
-        "scale_has_33_ticks_and_9_long_major_ticks": ticks.get("totalTickCount") == 33 and ticks.get("majorTickEvery") == 4 and ticks.get("majorTickCount") == 9,
-        "scale_major_ticks_labeled_80_to_0_top_to_bottom": len(scale_labels) == 9 and scale_label_values == list(range(80, -1, -10)) and all(scale_label_z_values[index] > scale_label_z_values[index + 1] for index in range(8)),
-        "scale_labels_align_one_to_one_with_major_ticks": scale_label_alignment_error_max < 1e-7 and len(set(round(value, 7) for value in scale_label_z_values)) == 9,
-        "scale_labels_are_evenly_spaced_and_clear": scale_label_spacing >= 0.0202 and all(label.type == "MESH" and label.get("attachedTo") == "Cylinder_Pyrex" for label in scale_labels),
+        "scale_has_37_ticks_and_10_long_major_ticks": ticks.get("totalTickCount") == 37 and ticks.get("majorTickEvery") == 4 and ticks.get("majorTickCount") == 10 and len(scale_tick_center_z_values_actual) == 37 and len(scale_major_z_values_actual_top_down) == 10,
+        "scale_major_ticks_run_90_to_0_with_zero_unlabeled": ticks.get("majorTickCount") == scale_major_tick_count and len(scale_labels) == scale_labeled_major_tick_count and scale_label_values == list(range(scale_max_value, 0, -scale_major_value_step)) and bpy.data.objects.get("ScaleLabel_0") is None and all(scale_label_z_values[index] > scale_label_z_values[index + 1] for index in range(len(scale_labels) - 1)),
+        "scale_labels_align_one_to_one_with_labeled_major_ticks": scale_label_alignment_error_max < 1e-7 and len(set(round(value, 7) for value in scale_label_z_values)) == scale_labeled_major_tick_count,
+        "scale_labels_are_evenly_spaced_and_clear": scale_label_spacing > previous_scale_major_spacing and all(label.type == "MESH" and label.get("attachedTo") == "Cylinder_Pyrex" for label in scale_labels),
         "scale_labels_conform_to_front_glass_surface": scale_label_surface_error_max < 5e-5 and scale_labels_all_on_front_half and all(label.get("surfaceConforming") is True for label in scale_labels),
         "scale_group_centered_in_front_view": scale_group_center_x_error < 0.0030,
         "scale_labels_close_beside_major_ticks": -0.0005 <= scale_label_to_major_tick_gap <= 0.0030,
         "scale_labels_regular_weight_and_readable_size": all(label.get("labelSize") >= 0.0090 and abs(label.get("outlineOffset")) < 1e-9 for label in scale_labels),
+        "scale_keeps_zero_at_bottom_and_extends_to_90": abs(scale_z_start - 0.141) < 1e-9 and abs(scale_z_end - 0.3445) < 1e-9 and abs(scale_span - 0.2035) < 1e-9,
+        "scale_actual_tick_mesh_spans_requested_range": abs(scale_tick_center_z_values_actual[0] - scale_z_start) < 1e-7 and abs(scale_tick_center_z_values_actual[-1] - scale_z_end) < 1e-7,
+        "scale_tick_and_major_spacing_increased": scale_tick_spacing_error_max < 1e-7 and expected_scale_tick_spacing > previous_scale_tick_spacing and expected_scale_major_spacing > previous_scale_major_spacing,
+        "scale_90_tick_keeps_small_gap_below_glass_top": 0.0 < scale_top_tick_to_glass_top_clearance_actual < 0.010 and scale_top_tick_to_upper_seal_clearance_actual > 0.0,
+        "scale_90_label_clears_upper_seal": scale_top_label_clearance_below_upper_seal > 0.0005,
+        "scale_zero_tick_close_to_glass_bottom": abs(scale_zero_tick_center_z - scale_z_start) < 1e-7 and 0.0 < scale_zero_tick_center_to_glass_bottom <= 0.00501,
+        "scale_zero_tick_clears_lower_seal": scale_zero_tick_edge_clearance_actual > 0.0 and abs(scale_zero_tick_edge_clearance_actual - scale_zero_tick_edge_clearance) < 1e-7,
+        "scale_zero_numeric_label_removed": bpy.data.objects.get("ScaleLabel_0") is None and 0 not in scale_label_values,
         "scale_strip_removed": bpy.data.objects.get("ScaleStrip_Clear") is None,
         "vent_assembly_removed": all(bpy.data.objects.get(name) is None for name in ("Port_Vent", "Port_Vent_WhiteConnector", "Tube_Vent_Short", "VentPinchClamp", "VentPinchClamp_CompressionJaw")),
         "base_is_open_v_shape": base_node.get("type") == "cast_iron_open_V_frame" and bpy.data.objects.get("Base_CastIron_FrontBeam") is None,
         "base_beams_enlarged_in_length_width_height": base_arm_length > original_base_arm_length and base_beam_width > original_base_beam_width and base_beam_height > original_base_beam_height,
         "base_feet_spacing_enlarged": abs((right_foot - left_foot).length - base_foot_spacing) < 1e-7 and base_foot_spacing > original_base_foot_spacing,
+        "level_foot_adjuster_screws_removed": bpy.data.objects.get("LevelFoot_L_AdjusterScrew") is None and bpy.data.objects.get("LevelFoot_R_AdjusterScrew") is None,
+        "level_feet_are_matching_fixed_half_cylinders": all(foot.type == "MESH" and foot.get("shape") == "vertical_half_cylinder" and foot.get("adjustable") is False and foot.get("fixed") is True for foot in (left_level_foot, right_level_foot)) and all(abs(bounds[0] + level_foot_radius) < 1e-7 and abs(bounds[1]) < 1e-7 and abs(bounds[2] + level_foot_radius) < 1e-7 and abs(bounds[3] - level_foot_radius) < 1e-7 for bounds in level_foot_local_bounds),
+        "level_foot_flat_faces_match_beam_width": all(abs(foot.get("flatFaceWidth") - base_beam_width) < 1e-9 for foot in (left_level_foot, right_level_foot)),
+        "level_feet_overlap_unified_v_beam_without_gap": (left_level_foot.location.xy - left_foot_expected_center.xy).length < 1e-8 and (right_level_foot.location.xy - right_foot_expected_center.xy).length < 1e-8 and level_foot_beam_overlap > 0.0 and level_foot_vertical_overlap > 0.0 and left_level_foot.get("logicalBeam") == "Base_CastIron_LeftBeam" and right_level_foot.get("logicalBeam") == "Base_CastIron_RightBeam" and all(foot.get("representedGeometryBy") == "Base_CastIron_LeftBeam" for foot in (left_level_foot, right_level_foot)),
+        "level_feet_have_rounded_corner_free_edges": all(modifier is not None and abs(modifier.width - level_foot_edge_radius) < 1e-9 and modifier.segments >= 6 for modifier in level_foot_bevels) and all(foot.get("protrudingCornersRemoved") is True for foot in (left_level_foot, right_level_foot)),
+        "level_feet_are_left_right_symmetric": abs(left_level_foot.location.x + right_level_foot.location.x) < 1e-8 and abs(left_level_foot.location.y - right_level_foot.location.y) < 1e-8,
         "base_arms_enlarged_to_295mm": abs((apex - left_foot).length - base_arm_length) < 1e-7 and abs((apex - right_foot).length - base_arm_length) < 1e-7,
         "v_arm_midpoint_supports_present": left_base_support.get("connectsFrom") == "Base_CastIron_LeftBeam_Midpoint" and right_base_support.get("connectsFrom") == "Base_CastIron_RightBeam_Midpoint",
         "base_connector_is_v_conforming_loft_plus_upper_cylinder": support_cross_mount.get("shape") == "v_conforming_footprint_loft" and connector_cylinder.get("shape") == "cylinder",
@@ -2676,7 +2846,7 @@ def create_scene():
         "connector_cylinder_fits_top_footprint": ((pedestal_top_front_half_x + pedestal_top_back_half_x) * 0.5) > connector_cylinder_radius,
         "base_beam_joint_is_smooth_boolean_union": left_base_beam.get("jointMethod") == "exact_boolean_union_with_rounded_hub" and left_base_beam.get("containsUnifiedVArms") is True and left_base_beam.get("pointedJointCornersRemoved") is True and right_base_beam.get("representedBy") == "Base_CastIron_LeftBeam",
         "base_beam_joint_has_rounded_transition": abs(left_base_beam.get("apexJointRadius") - base_joint_radius) < 1e-9 and base_joint_radius > base_beam_width * 0.5,
-        "three_base_contacts_on_table": True,
+        "three_base_contacts_on_table": all(abs(obj.get("contactZ")) < 1e-9 and abs(world_bounds_z(obj)[0]) < 1e-7 for obj in (left_level_foot, right_level_foot, vertex)),
         "sensor_feet_on_table": True,
         "hose_start_matches_anchor": (Vector(bpy.data.objects["ANCHOR_Hose_Start"].location) - hose_start).length < 1e-8,
         "hose_end_matches_anchor": (Vector(bpy.data.objects["ANCHOR_Hose_End"].location) - hose_end).length < 1e-8,
@@ -2809,8 +2979,25 @@ def create_scene():
             "glass_tube_inner_diameter": tube_inner_radius * 2.0 * instrument_scale,
             "glass_tube_length_after_stretch": cylinder_depth * instrument_scale,
             "scale_tick_count": scale_tick_count,
-            "scale_major_tick_count": len(scale_labels),
-            "scale_major_values_top_to_bottom": scale_label_values,
+            "scale_major_tick_count": ticks.get("majorTickCount"),
+            "scale_labeled_major_tick_count": len(scale_labels),
+            "scale_major_values_top_to_bottom": list(range(scale_max_value, -1, -scale_major_value_step)),
+            "scale_label_values_top_to_bottom": scale_label_values,
+            "scale_unlabeled_major_values": [0],
+            "scale_z_start": scale_z_start * instrument_scale,
+            "scale_z_end": scale_z_end * instrument_scale,
+            "scale_downward_translation": 0.028 * instrument_scale,
+            "scale_upper_extension_from_previous": (scale_z_end - 0.304) * instrument_scale,
+            "scale_tick_spacing": expected_scale_tick_spacing * instrument_scale,
+            "scale_tick_spacing_error_max": scale_tick_spacing_error_max * instrument_scale,
+            "scale_tick_spacing_increase": (expected_scale_tick_spacing - previous_scale_tick_spacing) * instrument_scale,
+            "scale_tick_spacing_increase_ratio": expected_scale_tick_spacing / previous_scale_tick_spacing - 1.0,
+            "scale_major_spacing_increase": (expected_scale_major_spacing - previous_scale_major_spacing) * instrument_scale,
+            "scale_top_tick_clearance_to_glass_top": scale_top_tick_to_glass_top_clearance_actual * instrument_scale,
+            "scale_top_tick_clearance_to_upper_seal": scale_top_tick_to_upper_seal_clearance_actual * instrument_scale,
+            "scale_top_label_clearance_below_upper_seal": scale_top_label_clearance_below_upper_seal * instrument_scale,
+            "scale_zero_tick_center_to_glass_bottom": scale_zero_tick_center_to_glass_bottom * instrument_scale,
+            "scale_zero_tick_edge_clearance_above_lower_seal": scale_zero_tick_edge_clearance_actual * instrument_scale,
             "scale_major_spacing": scale_label_spacing * instrument_scale,
             "scale_label_alignment_error_max": scale_label_alignment_error_max,
             "scale_label_surface_error_max": scale_label_surface_error_max,
@@ -2862,6 +3049,21 @@ def create_scene():
             "mass_platform_pillar_diameter": pillar_radius * 2.0,
             "base_foot_center_distance": (right_foot - left_foot).length,
             "base_foot_to_apex": (apex - left_foot).length,
+            "level_foot_shape": "vertical_half_cylinder",
+            "level_foot_radius": level_foot_radius,
+            "level_foot_diameter": level_foot_radius * 2.0,
+            "level_foot_height": level_foot_height,
+            "level_foot_flat_face_width": level_foot_radius * 2.0,
+            "level_foot_beam_overlap": level_foot_beam_overlap,
+            "level_foot_visible_outward_projection": level_foot_radius - level_foot_beam_overlap,
+            "level_foot_vertical_overlap": level_foot_vertical_overlap,
+            "level_foot_lateral_margin_to_beam": base_beam_width * 0.5 - level_foot_radius,
+            "level_foot_edge_radius": level_foot_edge_radius,
+            "level_foot_left_center": list(left_level_foot.matrix_world.translation),
+            "level_foot_right_center": list(right_level_foot.matrix_world.translation),
+            "level_foot_left_rotation_z": left_level_foot.rotation_euler.z,
+            "level_foot_right_rotation_z": right_level_foot.rotation_euler.z,
+            "level_foot_adjuster_screw_count": sum(1 for name in ("LevelFoot_L_AdjusterScrew", "LevelFoot_R_AdjusterScrew") if bpy.data.objects.get(name) is not None),
             "base_beam_width": base_beam_width,
             "base_beam_height": base_beam_height,
             "base_beam_apex_joint_overlap": base_joint_overlap,
