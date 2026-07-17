@@ -871,36 +871,37 @@ def create_scene():
     set_props(base_node, type="cast_iron_open_V_frame", footCenterDistance=base_foot_spacing, footToVertexDistance=base_arm_length)
 
     level_foot_radius = base_beam_width * 0.5
-    level_foot_height = 0.012
-    level_foot_beam_overlap = 0.003
+    base_beam_top_z = base_beam_center_z + base_beam_height * 0.5
+    level_foot_height = base_beam_top_z
+    level_foot_beam_overlap = level_foot_radius
     level_foot_edge_radius = 0.0012
     level_feet = {}
     for name, p, logical_side in (
         ("LevelFoot_L", left_foot, "left"),
         ("LevelFoot_R", right_foot, "right"),
     ):
-        beam_direction = (apex - p).normalized()
-        flat_face_center = p + beam_direction * level_foot_beam_overlap
-        foot = half_cylinder(
+        foot = cylinder(
             name,
-            (flat_face_center.x, flat_face_center.y, level_foot_height * 0.5),
+            (p.x, p.y, level_foot_height * 0.5),
             level_foot_radius,
             level_foot_height,
-            math.atan2(beam_direction.y, beam_direction.x),
             mats["rubber"], cols["02_Stand"], stand,
-            segments=64, edge=level_foot_edge_radius,
+            vertices=128, edge=0.0,
         )
+        bevel(foot, level_foot_edge_radius, 6)
         level_feet[name] = foot
         set_props(
             foot,
             contactZ=0.0,
             adjustable=False,
             fixed=True,
-            shape="vertical_half_cylinder",
-            profile="D_profile_with_semicircular_exposed_edge",
+            shape="vertical_cylinder",
+            profile="circular",
             radius=level_foot_radius,
+            diameter=level_foot_radius * 2.0,
             height=level_foot_height,
-            flatFaceWidth=level_foot_radius * 2.0,
+            topZ=base_beam_top_z,
+            topFlushWith="Base_CastIron_LeftBeam",
             beamOverlap=level_foot_beam_overlap,
             edgeRadius=level_foot_edge_radius,
             logicalSide=logical_side,
@@ -2346,7 +2347,7 @@ def create_scene():
         "back": ((-0.10, 0.71, 0.32), (-0.10, -0.040, 0.235), 50),
         "top": ((-0.10, -0.04, 1.70), (-0.10, -0.04, 0.050), 45),
         "base_top": ((-0.099, -0.025, 0.46), (-0.10, -0.025, 0.025), 50),
-        "base_foot_detail": ((-0.095, -0.350, 0.095), (-0.010, -0.189, 0.010), 65),
+        "base_foot_detail": ((-0.095, -0.350, 0.110), (-0.010, -0.189, 0.022), 65),
         "sensor_hose": ((0.24, -0.48, 0.16), (-0.060, -0.215, 0.075), 58),
         "sensor_ports": ((-0.105, -0.260, 0.250), (-0.095, -0.258, 0.015), 65),
         "sensor_data_connector": ((-0.355, -0.390, 0.125), (-0.180, -0.272, 0.020), 72),
@@ -2736,12 +2737,14 @@ def create_scene():
         table_center.x - table_dims.x * 0.5, table_center.x + table_dims.x * 0.5,
         table_center.y - table_dims.y * 0.5, table_center.y + table_dims.y * 0.5,
     )
-    left_foot_direction = (apex - left_foot).normalized()
-    right_foot_direction = (apex - right_foot).normalized()
-    left_foot_expected_center = left_foot + left_foot_direction * level_foot_beam_overlap
-    right_foot_expected_center = right_foot + right_foot_direction * level_foot_beam_overlap
+    left_foot_expected_center = left_foot
+    right_foot_expected_center = right_foot
     base_beam_bottom_z = base_beam_center_z - base_beam_height * 0.5
-    level_foot_vertical_overlap = level_foot_height - base_beam_bottom_z
+    level_foot_vertical_overlap = max(0.0, min(level_foot_height, base_beam_top_z) - max(0.0, base_beam_bottom_z))
+    level_foot_top_flush_error = max(
+        abs(world_bounds_z(left_level_foot)[1] - world_bounds_z(left_base_beam)[1]),
+        abs(world_bounds_z(right_level_foot)[1] - world_bounds_z(left_base_beam)[1]),
+    )
     level_foot_local_bounds = []
     for foot in (left_level_foot, right_level_foot):
         x_values = [vertex.co.x for vertex in foot.data.vertices]
@@ -2826,8 +2829,9 @@ def create_scene():
         "base_beams_enlarged_in_length_width_height": base_arm_length > original_base_arm_length and base_beam_width > original_base_beam_width and base_beam_height > original_base_beam_height,
         "base_feet_spacing_enlarged": abs((right_foot - left_foot).length - base_foot_spacing) < 1e-7 and base_foot_spacing > original_base_foot_spacing,
         "level_foot_adjuster_screws_removed": bpy.data.objects.get("LevelFoot_L_AdjusterScrew") is None and bpy.data.objects.get("LevelFoot_R_AdjusterScrew") is None,
-        "level_feet_are_matching_fixed_half_cylinders": all(foot.type == "MESH" and foot.get("shape") == "vertical_half_cylinder" and foot.get("adjustable") is False and foot.get("fixed") is True for foot in (left_level_foot, right_level_foot)) and all(abs(bounds[0] + level_foot_radius) < 1e-7 and abs(bounds[1]) < 1e-7 and abs(bounds[2] + level_foot_radius) < 1e-7 and abs(bounds[3] - level_foot_radius) < 1e-7 for bounds in level_foot_local_bounds),
-        "level_foot_flat_faces_match_beam_width": all(abs(foot.get("flatFaceWidth") - base_beam_width) < 1e-9 for foot in (left_level_foot, right_level_foot)),
+        "level_feet_are_matching_fixed_cylinders": all(foot.type == "MESH" and foot.get("shape") == "vertical_cylinder" and foot.get("profile") == "circular" and foot.get("adjustable") is False and foot.get("fixed") is True for foot in (left_level_foot, right_level_foot)) and all(abs(bounds[0] + level_foot_radius) < 1e-7 and abs(bounds[1] - level_foot_radius) < 1e-7 and abs(bounds[2] + level_foot_radius) < 1e-7 and abs(bounds[3] - level_foot_radius) < 1e-7 and abs(bounds[4] + level_foot_height * 0.5) < 1e-7 and abs(bounds[5] - level_foot_height * 0.5) < 1e-7 for bounds in level_foot_local_bounds),
+        "level_foot_diameters_match_beam_width": all(abs(foot.get("diameter") - base_beam_width) < 1e-9 for foot in (left_level_foot, right_level_foot)),
+        "level_foot_tops_flush_with_base_beam": level_foot_top_flush_error < 1e-7 and all(abs(foot.get("topZ") - base_beam_top_z) < 1e-9 and foot.get("topFlushWith") == "Base_CastIron_LeftBeam" for foot in (left_level_foot, right_level_foot)),
         "level_feet_overlap_unified_v_beam_without_gap": (left_level_foot.location.xy - left_foot_expected_center.xy).length < 1e-8 and (right_level_foot.location.xy - right_foot_expected_center.xy).length < 1e-8 and level_foot_beam_overlap > 0.0 and level_foot_vertical_overlap > 0.0 and left_level_foot.get("logicalBeam") == "Base_CastIron_LeftBeam" and right_level_foot.get("logicalBeam") == "Base_CastIron_RightBeam" and all(foot.get("representedGeometryBy") == "Base_CastIron_LeftBeam" for foot in (left_level_foot, right_level_foot)),
         "level_feet_have_rounded_corner_free_edges": all(modifier is not None and abs(modifier.width - level_foot_edge_radius) < 1e-9 and modifier.segments >= 6 for modifier in level_foot_bevels) and all(foot.get("protrudingCornersRemoved") is True for foot in (left_level_foot, right_level_foot)),
         "level_feet_are_left_right_symmetric": abs(left_level_foot.location.x + right_level_foot.location.x) < 1e-8 and abs(left_level_foot.location.y - right_level_foot.location.y) < 1e-8,
@@ -3049,13 +3053,15 @@ def create_scene():
             "mass_platform_pillar_diameter": pillar_radius * 2.0,
             "base_foot_center_distance": (right_foot - left_foot).length,
             "base_foot_to_apex": (apex - left_foot).length,
-            "level_foot_shape": "vertical_half_cylinder",
+            "level_foot_shape": "vertical_cylinder",
             "level_foot_radius": level_foot_radius,
             "level_foot_diameter": level_foot_radius * 2.0,
             "level_foot_height": level_foot_height,
-            "level_foot_flat_face_width": level_foot_radius * 2.0,
+            "level_foot_top_z": level_foot_height,
+            "base_beam_top_z": base_beam_top_z,
+            "level_foot_top_flush_error": level_foot_top_flush_error,
             "level_foot_beam_overlap": level_foot_beam_overlap,
-            "level_foot_visible_outward_projection": level_foot_radius - level_foot_beam_overlap,
+            "level_foot_visible_outward_projection": level_foot_radius,
             "level_foot_vertical_overlap": level_foot_vertical_overlap,
             "level_foot_lateral_margin_to_beam": base_beam_width * 0.5 - level_foot_radius,
             "level_foot_edge_radius": level_foot_edge_radius,

@@ -23,10 +23,10 @@
 - 刻度数字贴合玻璃管曲面并保持正常字重。
 - 活塞Z向高度约 26.4 mm。
 - PistonRod总长约 277.2 mm，并与上拨片顶面齐平。
-- 左右底脚改为固定式 D 形半圆柱橡胶脚，平面宽 52 mm、高 12 mm，向 V 形梁端嵌入 3 mm，并以 1.2 mm 圆角消除突出棱角；两根调节螺杆已移除。
+- 左右底脚改为固定式完整圆柱橡胶脚，直径 52 mm、高 39 mm；顶面与 V 形梁顶面平齐，梁端向圆柱内部搭接 26 mm，并以 1.2 mm 圆角消除突出棱角；两根调节螺杆保持移除。
 - 包含精细化数字输入、模拟输入、PASPORT和BNC输出接口。
 
-![固定式半圆底脚细节](deliverables_ex5531_final/previews/preview_base_foot_detail.png)
+![固定式圆柱底脚细节](deliverables_ex5531_final/previews/preview_base_foot_detail.png)
 
 ## PowerShell预览
 
